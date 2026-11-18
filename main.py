@@ -157,112 +157,85 @@ def panel(x, y, w, h, accent):
 
 
 
-# ---------------------------------------------------------------- variant B
-PAPER = (247, 243, 232)
-INK = (26, 26, 30)
-RULE = (70, 70, 78)
-RED = (168, 38, 38)
-GREY = (120, 118, 112)
+# ---------------------------------------------------------------- variant C
+BG2 = (8, 12, 22)
+LAND = (34, 44, 60)
+LAND2 = (46, 58, 78)
+GLOW = (255, 196, 64)
+BLUE = (92, 160, 255)
+GREEN = (110, 220, 170)
+PINK = (240, 130, 190)
 
 
-def hline(y, x0=60, x1=1540, c=RULE, t=2):
-    rect(x0, y, x1 - x0, t, c)
+def blob(cx, cy, rx, ry, c):
+    for dy in range(-ry, ry + 1):
+        span = int(rx * (1 - (dy * dy) / float(ry * ry)) ** 0.5)
+        rect(cx - span, cy + dy, span * 2 + 1, 1, c)
 
 
-def wrap(s, width_px, scale, tracking=1):
-    words, lines, cur = s.split(), [], ""
-    for w in words:
-        t = (cur + " " + w).strip()
-        if text_w(t, scale, tracking) > width_px and cur:
-            lines.append(cur)
-            cur = w
-        else:
-            cur = t
-    if cur:
-        lines.append(cur)
-    return lines
-
-
-def body_lines(x, y, w, n, scale=2, gap=26, c=GREY):
-    import random
-    random.seed(7)
-    for i in range(n):
-        ln = w if i < n - 1 else int(w * 0.62)
-        jitter = random.randint(-30, 10)
-        rect(x, y + i * gap, ln + jitter, 6, c)
+def ring(cx, cy, r, c, t=2):
+    steps = max(24, r * 3)
+    for i in range(steps):
+        a = 2 * 3.1415926 * i / steps
+        import math
+        x = int(cx + r * math.cos(a))
+        y = int(cy + r * math.sin(a))
+        rect(x, y, t, t, c)
 
 
 def main():
     import math
-    rect(0, 0, W, H, PAPER)
+
+    rect(0, 0, W, H, BG2)
     for i in range(H):
         t = i / H
-        rect(0, i, W, 1, (int(247 - 6 * t), int(243 - 8 * t), int(232 - 12 * t)))
+        rect(0, i, W, 1, (int(8 + 6 * t), int(12 + 8 * t), int(22 + 12 * t)))
 
-    hline(46, t=3)
-    text(60, 66, "THE WORLD TODAY", INK, 9, tracking=3)
-    text(60, 152, "WEDNESDAY, 18 NOVEMBER 2026", GREY, 3)
-    text(1080, 152, "ONE IMAGE EDITION", GREY, 3)
-    hline(190, t=4)
-    hline(200, t=1)
+    # graticule
+    for gx in range(80, W, 120):
+        rect(gx, 0, 1, H, (16, 22, 34))
+    for gy in range(60, H, 120):
+        rect(0, gy, W, 1, (16, 22, 34))
 
-    # lead headline
-    head = "US, CHINA AND RUSSIA LEADERS SET TO MEET AS JAPAN OPENS WITH TRUMP"
-    y = 232
-    for ln in wrap(head, 940, 6)[:3]:
-        text(60, y, ln, INK, 6)
-        y += 56
+    # continents (rough)
+    blob(330, 300, 120, 95, LAND)     # north america
+    blob(420, 470, 70, 110, LAND)     # south america
+    blob(760, 330, 85, 80, LAND)      # europe
+    blob(830, 520, 105, 130, LAND)    # africa
+    blob(1080, 300, 190, 110, LAND)   # asia
+    blob(1230, 520, 90, 55, LAND)     # oceania
+    blob(360, 250, 60, 45, LAND2)
+    blob(1120, 260, 120, 60, LAND2)
 
-    # standfirst
-    sub = "SUMMIT TALKS HEADLINE A DAY OF SHIPPING, ENERGY AND ELECTION NEWS"
-    y2 = y + 18
-    for ln in wrap(sub, 900, 3)[:2]:
-        text(60, y2, ln, RED, 3)
-        y2 += 34
+    text(60, 48, "THE WORLD ON 18 NOVEMBER 2026", (238, 242, 248), 5)
+    rect(60, 110, 700, 2, (60, 74, 96))
 
-    # photo block
-    px0, py0, pw, ph = 1040, 210, 500, 270
-    rect(px0, py0, pw, ph, (214, 208, 194))
-    circle(px0 + 250, py0 + 150, 96, (196, 189, 174))
-    circle(px0 + 250, py0 + 150, 78, (214, 208, 194))
-    # three figures at a table
-    table_y = py0 + 214
-    rect(px0 + 90, table_y, 320, 14, (60, 58, 54))
-    for fx in (px0 + 150, px0 + 250, px0 + 350):
-        rect(fx - 22, table_y - 78, 44, 52, (72, 70, 66))
-        circle(fx, table_y - 96, 24, (72, 70, 66))
-    # flags hint
-    for i, col in enumerate([(168, 38, 38), (52, 76, 150), (60, 120, 80)]):
-        rect(px0 + 400, py0 + 40 + i * 30, 60, 18, col)
-    text(px0, py0 + ph + 12, "LEADERS MEET / WIRE PHOTO", GREY, 2)
+    spots = [
+        (330, 300, GLOW, "WASHINGTON", "SUMMIT SET: US, CHINA AND RUSSIA LEADERS TO MEET"),
+        (1130, 300, BLUE, "TOKYO", "JAPAN PM TAKAICHI OPENS WITH TRUMP FIRST"),
+        (760, 330, GREEN, "BRUSSELS", "AI AGENTS MOVE FROM DEMOS INTO PAID WORK"),
+        (830, 520, PINK, "LAGOS", "CRYPTO STEADY AS RATES STAY HIGH"),
+    ]
+    for i, (cx, cy, col, city, head) in enumerate(spots, 1):
+        ring(cx, cy, 36, (col[0] // 2, col[1] // 2, col[2] // 2), 2)
+        ring(cx, cy, 22, col, 2)
+        circle(cx, cy, 9, col)
+        circle(cx, cy, 3, (8, 12, 22))
+        text(cx - 7, cy - 8, str(i), (8, 12, 22), 2)
 
-    # columns of body text
-    col_y = 596
-    for ci in range(3):
-        cx = 60 + ci * 330
-        body_lines(cx, col_y, 300, 6, 2, 26)
-        if ci < 2:
-            rect(cx + 312, col_y - 6, 2, 150, (196, 190, 176))
+    # legend: two columns, two rows
+    for i, (cx, cy, col, city, head) in enumerate(spots):
+        lx = 60 + (i % 2) * 760
+        ly = 556 + (i // 2) * 116
+        rect(lx, ly - 4, 6, 34, col)
+        text(lx + 24, ly, str(i + 1), col, 3)
+        text(lx + 66, ly, city, col, 3)
+        text(lx + 66, ly + 36, head, (226, 232, 242), 2)
 
-    # side rail headlines
-    rail_x = 1110
-    rail = [("ASIA", "TAKAICHI SPEAKS WITH TRUMP FIRST"),
-            ("TECH", "AI AGENTS MOVE INTO PAID WORK"),
-            ("MARKETS", "CRYPTO STEADY, RATES HIGH")]
-    ry = 520
-    for tag, head2 in rail:
-        text(rail_x, ry, tag, RED, 2)
-        ry += 26
-        for ln in wrap(head2, 430, 3)[:2]:
-            text(rail_x, ry, ln, INK, 3)
-            ry += 26
-        ry += 10
-
-    hline(806, t=3)
-    text(60, 826, "EDITED BY AN AI AGENT", INK, 3)
-    text(560, 826, "MAKE.FUN / NEWS-IMAGE-20261118", GREY, 3)
-    text(1290, 826, "18 NOV 2026", GREY, 3)
-    return canvas
+    # bottom legend
+    rect(60, 730, 1480, 2, (60, 74, 96))
+    text(60, 758, "FOUR STORIES / ONE DAY / ONE IMAGE", (150, 164, 184), 3)
+    text(1150, 758, "MAKE.FUN 18 NOV 2026", (150, 164, 184), 3)
 
 
 if __name__ == "__main__":
@@ -279,7 +252,7 @@ if __name__ == "__main__":
            + chunk(b"IHDR", struct.pack(">IIBBBBB", W, H, 8, 2, 0, 0, 0))
            + chunk(b"IDAT", zlib.compress(raw, 9))
            + chunk(b"IEND", b""))
-    out = "/output/entry.png" if os.path.isdir("/output") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "entry_b.png")
+    out = "/output/entry.png" if os.path.isdir("/output") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "entry_c.png")
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     open(out, "wb").write(png)
     print("wrote", out, len(png))
