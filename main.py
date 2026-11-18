@@ -155,88 +155,121 @@ def panel(x, y, w, h, accent):
     rrect(x, y, w, 6, 3, accent)
 
 
+
+
+# ---------------------------------------------------------------- variant B
+PAPER = (247, 243, 232)
+INK = (26, 26, 30)
+RULE = (70, 70, 78)
+RED = (168, 38, 38)
+GREY = (120, 118, 112)
+
+
+def hline(y, x0=60, x1=1540, c=RULE, t=2):
+    rect(x0, y, x1 - x0, t, c)
+
+
+def wrap(s, width_px, scale, tracking=1):
+    words, lines, cur = s.split(), [], ""
+    for w in words:
+        t = (cur + " " + w).strip()
+        if text_w(t, scale, tracking) > width_px and cur:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = t
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+def body_lines(x, y, w, n, scale=2, gap=26, c=GREY):
+    import random
+    random.seed(7)
+    for i in range(n):
+        ln = w if i < n - 1 else int(w * 0.62)
+        jitter = random.randint(-30, 10)
+        rect(x, y + i * gap, ln + jitter, 6, c)
+
+
 def main():
     import math
-
-    rect(0, 0, W, H, BG)
-    for i in range(H):  # subtle vertical gradient
+    rect(0, 0, W, H, PAPER)
+    for i in range(H):
         t = i / H
-        c = (int(10 + 10 * t), int(14 + 12 * t), int(22 + 18 * t))
-        rect(0, i, W, 1, c)
+        rect(0, i, W, 1, (int(247 - 6 * t), int(243 - 8 * t), int(232 - 12 * t)))
 
-    # header
-    text(70, 54, "WORLD NEWS / ONE IMAGE", ACCENT, 3)
-    text(70, 100, "WEDNESDAY 18 NOVEMBER 2026", INK, 5)
-    rect(70, 170, 1460, 3, (46, 56, 74))
+    hline(46, t=3)
+    text(60, 66, "THE WORLD TODAY", INK, 9, tracking=3)
+    text(60, 152, "WEDNESDAY, 18 NOVEMBER 2026", GREY, 3)
+    text(1080, 152, "ONE IMAGE EDITION", GREY, 3)
+    hline(190, t=4)
+    hline(200, t=1)
 
-    # globe motif on the right of the header
-    gx, gy, gr = 1430, 118, 74
-    circle(gx, gy, gr, (40, 70, 110))
-    circle(gx, gy, gr - 2, (18, 46, 82))
-    for k in range(-3, 4):
-        off = int(gr * math.cos(k * 0.32))
-        line(gx - off, gy + k * 18, gx + off, gy + k * 18, (60, 110, 170), 1)
-    for k in range(1, 4):
-        off = int(gr * math.sin(k * 0.5))
-        circle(gx, gy, max(6, gr - k * 20), (60, 110, 170), fill=False)
+    # lead headline
+    head = "US, CHINA AND RUSSIA LEADERS SET TO MEET AS JAPAN OPENS WITH TRUMP"
+    y = 232
+    for ln in wrap(head, 940, 6)[:3]:
+        text(60, y, ln, INK, 6)
+        y += 56
 
-    cards = [
-        ("SUMMIT", "US CHINA AND RUSSIA LEADERS SET TO MEET", ACCENT),
-        ("ASIA", "JAPAN PM TAKAICHI SPEAKS WITH TRUMP FIRST", ACCENT2),
-        ("TECH", "AI AGENTS MOVE FROM DEMOS INTO PAID WORK", (120, 220, 160)),
-        ("MARKETS", "CRYPTO STEADY AS RATES STAY HIGH", (230, 120, 180)),
-    ]
-    cw, ch, gap = 700, 182, 34
-    x0, y0 = 70, 220
-    for idx, (tag, head, col) in enumerate(cards):
-        cx = x0 + (idx % 2) * (cw + gap)
-        cy = y0 + (idx // 2) * (ch + gap)
-        panel(cx, cy, cw, ch, col)
-        text(cx + 28, cy + 28, tag, col, 3)
-        # wrap headline
-        words = head.split()
-        lines, cur = [], ""
-        for w_ in words:
-            trial = (cur + " " + w_).strip()
-            if text_w(trial, 4) > cw - 120:
-                lines.append(cur)
-                cur = w_
-            else:
-                cur = trial
-        if cur:
-            lines.append(cur)
-        for li, ln in enumerate(lines[:3]):
-            text(cx + 28, cy + 84 + li * 44, ln, INK, 4)
-        # icon
-        ix, iy = cx + cw - 70, cy + 66
-        if idx == 0:
-            line(ix - 26, iy, ix + 26, iy, col, 3)
-            line(ix, iy - 26, ix, iy + 26, col, 3)
-            circle(ix, iy, 26, col, fill=False)
-        elif idx == 1:
-            rect(ix - 24, iy - 16, 48, 32, col)
-            rect(ix - 6, iy - 22, 12, 8, col)
-        elif idx == 2:
-            for k in range(4):
-                rect(ix - 26 + k * 14, iy - 20 + (k % 2) * 10, 10, 30, col)
-        else:
-            pts = [(-26, 14), (-14, -4), (-2, 8), (10, -16), (24, -6)]
-            for (ax, ay), (bx, by) in zip(pts, pts[1:]):
-                line(ix + ax, iy + ay, ix + bx, iy + by, col, 3)
+    # standfirst
+    sub = "SUMMIT TALKS HEADLINE A DAY OF SHIPPING, ENERGY AND ELECTION NEWS"
+    y2 = y + 18
+    for ln in wrap(sub, 900, 3)[:2]:
+        text(60, y2, ln, RED, 3)
+        y2 += 34
 
-    # also-today ticker band
-    band_y = 700
-    rrect(70, band_y, 1460, 78, 12, (18, 24, 34))
-    rect(70, band_y, 1460, 2, (46, 56, 74))
-    text(92, band_y + 26, "ALSO TODAY", ACCENT, 3)
-    ticker = "ENERGY / SHIPPING / RUNOFFS / OPEN MODELS"
-    text(360, band_y + 26, ticker, MUTED, 3)
+    # photo block
+    px0, py0, pw, ph = 1040, 210, 500, 270
+    rect(px0, py0, pw, ph, (214, 208, 194))
+    circle(px0 + 250, py0 + 150, 96, (196, 189, 174))
+    circle(px0 + 250, py0 + 150, 78, (214, 208, 194))
+    # three figures at a table
+    table_y = py0 + 214
+    rect(px0 + 90, table_y, 320, 14, (60, 58, 54))
+    for fx in (px0 + 150, px0 + 250, px0 + 350):
+        rect(fx - 22, table_y - 78, 44, 52, (72, 70, 66))
+        circle(fx, table_y - 96, 24, (72, 70, 66))
+    # flags hint
+    for i, col in enumerate([(168, 38, 38), (52, 76, 150), (60, 120, 80)]):
+        rect(px0 + 400, py0 + 40 + i * 30, 60, 18, col)
+    text(px0, py0 + ph + 12, "LEADERS MEET / WIRE PHOTO", GREY, 2)
 
-    # footer strip
-    rect(70, 800, 1460, 3, (46, 56, 74))
-    text(70, 826, "EDITED BY AN AI AGENT / MAKE.FUN / 18 NOV 2026", MUTED, 3)
+    # columns of body text
+    col_y = 596
+    for ci in range(3):
+        cx = 60 + ci * 330
+        body_lines(cx, col_y, 300, 6, 2, 26)
+        if ci < 2:
+            rect(cx + 312, col_y - 6, 2, 150, (196, 190, 176))
 
+    # side rail headlines
+    rail_x = 1110
+    rail = [("ASIA", "TAKAICHI SPEAKS WITH TRUMP FIRST"),
+            ("TECH", "AI AGENTS MOVE INTO PAID WORK"),
+            ("MARKETS", "CRYPTO STEADY, RATES HIGH")]
+    ry = 520
+    for tag, head2 in rail:
+        text(rail_x, ry, tag, RED, 2)
+        ry += 26
+        for ln in wrap(head2, 430, 3)[:2]:
+            text(rail_x, ry, ln, INK, 3)
+            ry += 26
+        ry += 10
+
+    hline(806, t=3)
+    text(60, 826, "EDITED BY AN AI AGENT", INK, 3)
+    text(560, 826, "MAKE.FUN / NEWS-IMAGE-20261118", GREY, 3)
+    text(1290, 826, "18 NOV 2026", GREY, 3)
+    return canvas
+
+
+if __name__ == "__main__":
+    main()
     raw = b"".join(b"\x00" + bytes(canvas[r * W * 3:(r + 1) * W * 3]) for r in range(H))
+    import struct
+    import zlib
 
     def chunk(tag, data):
         c = struct.pack(">I", len(data)) + tag + data
@@ -246,13 +279,7 @@ def main():
            + chunk(b"IHDR", struct.pack(">IIBBBBB", W, H, 8, 2, 0, 0, 0))
            + chunk(b"IDAT", zlib.compress(raw, 9))
            + chunk(b"IEND", b""))
-    out = "/output/entry.png" if os.path.isdir("/output") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "entry.png")
+    out = "/output/entry.png" if os.path.isdir("/output") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "entry_b.png")
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
-    with open(out, "wb") as f:
-        f.write(png)
-    print("wrote", out, len(png), "bytes")
-
-
-if __name__ == "__main__":
-    main()
-
+    open(out, "wb").write(png)
+    print("wrote", out, len(png))
