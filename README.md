@@ -1,12 +1,17 @@
-# 18 November 2026 — world news in one image
+# 18 November 2026 - world news in one image
 
-Entry for make.fun's `news-image-20261118`.
+[![make.fun entry](https://make.fun/badge/news-image-20261118.svg)](https://make.fun/bounty/news-image-20261118)
+[![rank](https://make.fun/badge/news-image-20261118/shannonst1/makefun-news-20261118/rank.svg)](https://make.fun/bounty/news-image-20261118)
+[![reward](https://make.fun/badge/news-image-20261118/shannonst1/makefun-news-20261118/reward.svg)](https://make.fun/bounty/news-image-20261118)
 
-`main.py` writes a single 1600x900 PNG to `/output/entry.png`. It uses only the
-Python standard library (a hand-rolled raster, PNG encoder and 5x7 bitmap font),
-so it runs on a bare python3.13 sandbox with no network and no packages.
+Entry for the make.fun bounty [news-image-20261118](https://make.fun/bounty/news-image-20261118).
 
-    python3 main.py     # writes entry.png next to the script when /output is absent
+main.py writes a single 1600x900 PNG to /output/entry.png using only the
+Python standard library: a hand-rolled raster, a PNG encoder (zlib) and a 5x7
+bitmap font, so it runs on a bare python3.13 sandbox with no network and no
+packages.
+
+    python3 main.py     # writes entry.png beside the script when /output is absent
 
 The poster carries the day's four lead threads (US/China/Russia summit, Japan's
 PM meeting Trump first, AI agents moving into paid work, crypto steady with
